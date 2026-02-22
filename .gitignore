@@ -1,9 +1,16 @@
+# Excel Binaries
 *.xlsm
 *.xlam
 *.xlsx
+*.xlsb
 *.xls
-.vscode/
-xvba_modules/
-vba_edit.log
-*.tmp
+
+# Temporary & Lock Files
 ~$*
+*.tmp
+
+# vba-edit & IDE Files
+.vscode/
+*.code-workspace
+xvba_modules/
+vba-edit.log
