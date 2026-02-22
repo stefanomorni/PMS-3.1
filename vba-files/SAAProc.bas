@@ -1,4 +1,5 @@
 Attribute VB_Name = "SAAProc"
+ '@Folder("PMS.Modules")
 Option Explicit
 'Declarations
 Public FoglioAttivo As String
@@ -11,6 +12,7 @@ Public failed_updates As String
 Public row_id As String
 Public sec_id As String
 Public calculation_setting
+
 '-------------------------------------------------------------------------------
 ' Function: InWorksheets
 '
@@ -74,7 +76,6 @@ End Function
 
 
 Sub Reset_Ambiente()
-Attribute Reset_Ambiente.VB_ProcData.VB_Invoke_Func = "r\n14"
 Application.EnableEvents = True
 Application.ScreenUpdating = True
 End Sub
@@ -123,23 +124,19 @@ Application.Run ("'" & CurrentBook.Name & "'!" & Procedure)
 Filechiuso:
 End Sub
 Sub Nascondi_Mostra_Proposta()
-Attribute Nascondi_Mostra_Proposta.VB_ProcData.VB_Invoke_Func = "P\n14"
 Switch_Visibilita Selection, "P_"
 End Sub
 Sub Nascondi_Mostra_Ordine()
-Attribute Nascondi_Mostra_Ordine.VB_ProcData.VB_Invoke_Func = "O\n14"
 Switch_Visibilita Selection, "O_"
 End Sub
 Sub Nascondi_Mostra_Attuale()
-Attribute Nascondi_Mostra_Attuale.VB_ProcData.VB_Invoke_Func = "A\n14"
 Switch_Visibilita Selection, "I_"
 End Sub
 Sub Nascondi_Mostra_Nuovo()
-Attribute Nascondi_Mostra_Nuovo.VB_ProcData.VB_Invoke_Func = "N\n14"
 Switch_Visibilita Selection, "S_"
 End Sub
 
-Sub Switch_Visibilita(Target, Prefix)
+Sub Switch_Visibilita(Target, PREFIX)
 Dim prevEvents As Boolean
 Dim prevScreenUpdating As Boolean
 prevEvents = Application.EnableEvents
@@ -149,7 +146,7 @@ Application.ScreenUpdating = False
 On Error GoTo fine
 Dim Cella As Range
 For Each Cella In Intersect(Target.Parent.Range("rwIntestazioni"), Target.Parent.UsedRange)
-    If Left(Cella, 2) = Prefix Then
+    If Left(Cella, 2) = PREFIX Then
             Cella.EntireColumn.Hidden = Not (Cella.EntireColumn.Hidden)
     End If
 Next Cella
@@ -158,7 +155,6 @@ Application.EnableEvents = prevEvents
 Application.ScreenUpdating = prevScreenUpdating
 End Sub
 Sub Mostra_Tutto()
-Attribute Mostra_Tutto.VB_ProcData.VB_Invoke_Func = "T\n14"
 Dim prevEvents As Boolean
 Dim prevScreenUpdating As Boolean
 prevEvents = Application.EnableEvents
@@ -1132,9 +1128,3 @@ End Sub
 Sub ApplyWorkbookDefaultFont()
     Call SetWorkbookDefaultFont("Aptos", 9)
 End Sub
-
-
-
-
-
-

@@ -1,0 +1,9 @@
+*.xlsm
+*.xlam
+*.xlsx
+*.xls
+.vscode/
+xvba_modules/
+vba_edit.log
+*.tmp
+~$*

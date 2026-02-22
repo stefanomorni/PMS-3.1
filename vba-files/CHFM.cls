@@ -29,9 +29,9 @@ Private Sub Aggiorna_Campi_MarketScreener(ByVal Caller As Object)
     SearchPattern = "(?:ALNI0[\s\S]+?href=\x22/)(.+?)\x22 codezb"
     Set Target_Cell = Caller.Parent.Cells(Caller.Row, Caller.Parent.Range("rwIntestazioni").Cells.Find(Field_Code).Column)
     Search_Result = morfunctions.RegExMatch(Text_To_Search, SearchPattern)
-    Prefix = MainURL
+    PREFIX = MainURL
     If Search_Result <> "" Then
-        Hyperlink_Formula = Prefix & Search_Result
+        Hyperlink_Formula = PREFIX & Search_Result
         simbolo = Symbol("E903")
         Target_Cell.Formula2R1C1 = "=HYPERLINK(""" & Hyperlink_Formula & """,""" & simbolo & """)"
         With Target_Cell.Font
@@ -46,9 +46,9 @@ Private Sub Aggiorna_Campi_MarketScreener(ByVal Caller As Object)
     
     Field_Code = "MS_Chart"
     Set Target_Cell = Caller.Parent.Cells(Caller.Row, Caller.Parent.Range("rwIntestazioni").Cells.Find(Field_Code).Column)
-    Prefix = MainURL
+    PREFIX = MainURL
     If MS_Code <> "" Then
-        Hyperlink_Formula = Prefix & "mods_a/charts/TV/inc_dyna_graph.php?c=" & MS_Code & "&h=950&w=1900&style=TradingView.CANDLES&interval=(null)&mobile=(null)&showAT=1"
+        Hyperlink_Formula = PREFIX & "mods_a/charts/TV/inc_dyna_graph.php?c=" & MS_Code & "&h=950&w=1900&style=TradingView.CANDLES&interval=(null)&mobile=(null)&showAT=1"
         simbolo = Symbol("E934")
         Target_Cell.Formula2R1C1 = "=HYPERLINK(""" & Hyperlink_Formula & """,""" & simbolo & """)"
         With Target_Cell.Font
@@ -112,5 +112,3 @@ EliminaComandoDaMenu "Cell", "Esporta Ordini"
 EliminaComandoDaMenu "Cell", "Registra Ordini"
 EliminaComandoDaMenu "Cell", "Reset fonte prezzo"
 End Sub
-
-

@@ -2,7 +2,7 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "AGCO"
+Attribute VB_Name = "EURM"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
@@ -10,11 +10,9 @@ Attribute VB_Exposed = True
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
 SAAProc.PorfolioSheetSelectionChange Target
 End Sub
-
 Private Sub Worksheet_Change(ByVal Target As Range)
 SAAProc.PortfolioSheetChange Target
 End Sub
-
 Private Sub Aggiorna_Campi_MarketScreener(ByVal Caller As Object)
     ISIN = Caller.Text
     MainURL = "https://www.marketscreener.com/"
@@ -31,9 +29,9 @@ Private Sub Aggiorna_Campi_MarketScreener(ByVal Caller As Object)
     SearchPattern = "(?:ALNI0[\s\S]+?href=\x22/)(.+?)\x22 codezb"
     Set Target_Cell = Caller.Parent.Cells(Caller.Row, Caller.Parent.Range("rwIntestazioni").Cells.Find(Field_Code).Column)
     Search_Result = morfunctions.RegExMatch(Text_To_Search, SearchPattern)
-    Prefix = MainURL
+    PREFIX = MainURL
     If Search_Result <> "" Then
-        Hyperlink_Formula = Prefix & Search_Result
+        Hyperlink_Formula = PREFIX & Search_Result
         simbolo = Symbol("E903")
         Target_Cell.Formula2R1C1 = "=HYPERLINK(""" & Hyperlink_Formula & """,""" & simbolo & """)"
         With Target_Cell.Font
@@ -48,9 +46,9 @@ Private Sub Aggiorna_Campi_MarketScreener(ByVal Caller As Object)
     
     Field_Code = "MS_Chart"
     Set Target_Cell = Caller.Parent.Cells(Caller.Row, Caller.Parent.Range("rwIntestazioni").Cells.Find(Field_Code).Column)
-    Prefix = MainURL
+    PREFIX = MainURL
     If MS_Code <> "" Then
-        Hyperlink_Formula = Prefix & "mods_a/charts/TV/inc_dyna_graph.php?c=" & MS_Code & "&h=950&w=1900&style=TradingView.CANDLES&interval=(null)&mobile=(null)&showAT=1"
+        Hyperlink_Formula = PREFIX & "mods_a/charts/TV/inc_dyna_graph.php?c=" & MS_Code & "&h=950&w=1900&style=TradingView.CANDLES&interval=(null)&mobile=(null)&showAT=1"
         simbolo = Symbol("E934")
         Target_Cell.Formula2R1C1 = "=HYPERLINK(""" & Hyperlink_Formula & """,""" & simbolo & """)"
         With Target_Cell.Font
@@ -67,12 +65,17 @@ End Sub
 Private Sub AggiornadatiFoglio()
 SAAProc.AggiornadatiSAA
 End Sub
-
 Private Sub OrdineTrasmesso()
 SAAProc.AggiornaPosizione Selection
 End Sub
 Private Sub RimuoviTitolo()
 SAAProc.RimuoviTitolo Selection
+End Sub
+Private Sub AggiungiTitoloSopra()
+SAAProc.AggiungiTitolo Selection, "Sopra"
+End Sub
+Private Sub AggiungiTitoloSotto()
+SAAProc.AggiungiTitolo Selection, "Sotto"
 End Sub
 Private Sub EliminaOrdini()
 SAAProc.EliminaOrdini Selection
@@ -90,6 +93,8 @@ Private Sub Worksheet_Activate()
 FoglioAttivo = ActiveSheet.Name
 AggiungiComandoAMenu Me, "Cell", "Aggiorna Prezzi", 1, VBA.Trim(" '" & Me.Parent.Name & "'!" & Me.CodeName & ".AggiornaDatiFoglio")
 AggiungiComandoAMenu Me, "Cell", "Rimuovi Titolo", 1, VBA.Trim(" '" & Me.Parent.Name & "'!" & Me.CodeName & ".RimuoviTitolo")
+AggiungiComandoAMenu Me, "Cell", "Aggiungi Titolo Sotto", 1, VBA.Trim(" '" & Me.Parent.Name & "'!" & Me.CodeName & ".AggiungiTitoloSotto")
+AggiungiComandoAMenu Me, "Cell", "Aggiungi Titolo Sopra", 1, VBA.Trim(" '" & Me.Parent.Name & "'!" & Me.CodeName & ".AggiungiTitoloSopra")
 AggiungiComandoAMenu Me, "Cell", "Elimina Ordini", 1, VBA.Trim(" '" & Me.Parent.Name & "'!" & Me.CodeName & ".EliminaOrdini")
 AggiungiComandoAMenu Me, "Cell", "Esporta Ordini", 1, VBA.Trim(" '" & Me.Parent.Name & "'!" & Me.CodeName & ".Esporta_Ordini")
 AggiungiComandoAMenu Me, "Cell", "Registra Ordini", 1, VBA.Trim(" '" & Me.Parent.Name & "'!" & Me.CodeName & ".Registra_Ordini")
@@ -107,4 +112,3 @@ EliminaComandoDaMenu "Cell", "Esporta Ordini"
 EliminaComandoDaMenu "Cell", "Registra Ordini"
 EliminaComandoDaMenu "Cell", "Reset fonte prezzo"
 End Sub
-
