@@ -1,10 +1,10 @@
 {
-    "app_name": "XVBA",
+    "app_name": "PMS 3.1",
     "description": "",
     "author": "",
     "email": "",
     "create_ate": "Sat Feb 21 2026 22:08:55 GMT+0100 (Central European Standard Time)",
-    "excel_file": "index.xlsb",
+    "excel_file": "PMS 3.1.xlsm",
     "vba_folder": "vba-files",
     "ribbon_file": "customUI14",
     "ribbon_folder": "ribbons",
