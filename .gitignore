@@ -14,3 +14,10 @@
 *.code-workspace
 xvba_modules/
 vba-edit.log
+
+# Power Query - generated/combined files (not tracked; per-query files in power-queries/ ARE tracked)
+*_PowerQuery.m
+*_PowerQuery_combined.m
+power-queries/_ewc3labs_backups/
+power-queries/.last_combine
+*.backup.*
