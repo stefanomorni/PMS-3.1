@@ -18,8 +18,8 @@ from datetime import datetime, timezone
 
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_DIR = SCRIPT_DIR.parent
-PQ_DIR = PROJECT_DIR / "power-queries"
-MANIFEST = PQ_DIR / "manifest.json"
+PQ_DIR      = PROJECT_DIR / "power-queries"
+MANIFEST    = PQ_DIR / "manifest.json"
 
 
 def find_canonical_output() -> Path:
@@ -57,7 +57,7 @@ def main():
             f"Manifest not found: {MANIFEST}\nRun split_power_queries.py first."
         )
 
-    data = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    data    = json.loads(MANIFEST.read_text(encoding="utf-8"))
     queries = data["queries"]
 
     # Determine output path
@@ -87,7 +87,7 @@ def main():
 
         # Strip per-file header comment lines (lines starting with //)
         lines = [l for l in raw.splitlines() if not l.startswith("//")]
-        expr = "\n".join(lines).strip()
+        expr  = "\n".join(lines).strip()
 
         # Prefix annotation if present
         if q.get("annotation"):
@@ -95,7 +95,7 @@ def main():
 
         # Re-wrap in section document format: shared <name> = <expr>;
         blocks.append(f"shared {q['name']} = {expr};")
-        blocks.append("")  # blank line between entries
+        blocks.append("")   # blank line between entries
 
     out_path.write_text("\n".join(blocks), encoding="utf-8")
     print(f"Combined file → {out_path}")
