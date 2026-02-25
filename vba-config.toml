@@ -1,9 +1,7 @@
 [general]
-# Smart pathing using placeholders
-file = "{config.path}/PMS 3.1.xlsm"
-vba_directory = "{config.path}/vba-files"
+file = 'D:\Cloud\OneDrive\MC\Investimenti\PMS\PMS 3.1\PMS 3.1.xlsm'
+vba_directory = 'vba-files'
 verbose = true
-rubberduck_folders = true
 in_file_headers = true
 keep_open = true
-encoding = "utf-8"
+encoding = 'utf-8'

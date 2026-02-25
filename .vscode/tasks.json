@@ -4,8 +4,8 @@
     {
       "label": "VBA: Sync & Watch",
       "type": "shell",
-      "command": "excel-vba",
-      "args": ["edit", "--conf", "vba-config.toml"],
+      "command": "python",
+      "args": ["scripts\\vba_sync_watch.py"],
       "isBackground": true,
       "problemMatcher": [],
       "presentation": { "reveal": "always", "panel": "dedicated" }
