@@ -329,6 +329,8 @@ Application.EnableEvents = prevEvents
 Application.ScreenUpdating = prevScreenUpdating
 End Sub
 Sub Esporta_Ordini(ByRef Target As Range)
+    Dim LogTbl As ListObject, LogRw As ListRow
+    Dim wsName As String
 Dim Ordini As Collection
 Dim O As clsOrdine
 Dim Calcolazione As XlCalculation
@@ -457,7 +459,7 @@ If Ordini.Count > 0 Then
             .SortMethod = xlPinYin
             .Apply
         End With
-        'Prima di elimanare i doppi, copia eventuali osservazioni nell'ordine pi� recente
+        'Prima di elimanare i doppi, copia eventuali osservazioni nell'ordine pi? recente
         For Each Riga In OrdersTbl.DataBodyRange.Rows
             If Riga.Cells(2) = Riga.Cells(2).Offset(1, 0) And Riga.Cells(9).Offset(1).Text <> "" Then
             'Copia Osservazioni
@@ -465,7 +467,7 @@ If Ordini.Count > 0 Then
             End If
         Next Riga
         
-        'Elimina eventuali ordini doppi(il pi� vecchio = Il secondo dopo ordinamento per ora decrescente)
+        'Elimina eventuali ordini doppi(il pi? vecchio = Il secondo dopo ordinamento per ora decrescente)
         .Range.RemoveDuplicates Columns:=Array(1, 2, 3), Header:=xlYes
         'Formata tabella
         .ShowTotals = True
@@ -530,7 +532,7 @@ ActiveWorkbook.Connections("Query - Posizioni").Refresh
 '    Aria2c_CookieFile_Download "https://boersenundmaerkte.lukb.ch/lukb/portfolio/show/export.xls?id=3821494&ds=trader", "D:\Cloud\OneDrive\Cookies\lukb-ch.txt", _
 '        portfolio_path, portfolio_name & "_new.xls", "true"
 '    If file_first_line(portfolio_path & "\" & portfolio_name & "_new.xls") <> "" Then
-'        'Il file non � un HTML con la prima linea vuota
+'        'Il file non ? un HTML con la prima linea vuota
 '        If FileExists(portfolio_path & "\" & portfolio_name & ".xls") Then Kill portfolio_path & "\" & portfolio_name & ".xls"
 '        Name portfolio_path & "\" & portfolio_name & "_new.xls" As _
 '             portfolio_path & "\" & portfolio_name & ".xls"
@@ -542,7 +544,7 @@ ActiveWorkbook.Connections("Query - Posizioni").Refresh
 '    Aria2c_CookieFile_Download "https://boersenundmaerkte.lukb.ch/lukb/portfolio/show/export.xls?id=3821494&assetClass=true", "D:\Cloud\OneDrive\Cookies\lukb-ch.txt", _
 '        portfolio_path, portfolio_name & "_new.xls", "true"
 '    If file_first_line(portfolio_path & "\" & portfolio_name & "_new.xls") <> "" Then
-'        'Il file non � un HTML con la prima linea vuota
+'        'Il file non ? un HTML con la prima linea vuota
 '        If FileExists(portfolio_path & "\" & portfolio_name & ".xls") Then Kill portfolio_path & "\" & portfolio_name & ".xls"
 '        Name portfolio_path & "\" & portfolio_name & "_new.xls" As _
 '             portfolio_path & "\" & portfolio_name & ".xls"
@@ -554,7 +556,7 @@ ActiveWorkbook.Connections("Query - Posizioni").Refresh
 '    Aria2c_CookieFile_Download "https://boersenundmaerkte.lukb.ch/lukb/portfolio/show/export.xls?id=3822628&ds=trader", "D:\Cloud\OneDrive\Cookies\lukb-ch.txt", _
 '        portfolio_path, portfolio_name & "_new.xls", "true"
 '    If file_first_line(portfolio_path & "\" & portfolio_name & "_new.xls") <> "" Then
-'        'Il file non � un HTML con la prima linea vuota
+'        'Il file non ? un HTML con la prima linea vuota
 '        If FileExists(portfolio_path & "\" & portfolio_name & ".xls") Then Kill portfolio_path & "\" & portfolio_name & ".xls"
 '        Name portfolio_path & "\" & portfolio_name & "_new.xls" As _
 '             portfolio_path & "\" & portfolio_name & ".xls"
@@ -566,7 +568,7 @@ ActiveWorkbook.Connections("Query - Posizioni").Refresh
 '    Aria2c_CookieFile_Download "https://boersenundmaerkte.lukb.ch/lukb/portfolio/show/export.xls?id=3822628&assetClass=true", "D:\Cloud\OneDrive\Cookies\lukb-ch.txt", _
 '        portfolio_path, portfolio_name & "_new.xls", "true"
 '    If file_first_line(portfolio_path & "\" & portfolio_name & "_new.xls") <> "" Then
-'        'Il file non � un HTML con la prima linea vuota
+'        'Il file non ? un HTML con la prima linea vuota
 '        If FileExists(portfolio_path & "\" & portfolio_name & ".xls") Then Kill portfolio_path & "\" & portfolio_name & ".xls"
 '        Name portfolio_path & "\" & portfolio_name & "_new.xls" As _
 '             portfolio_path & "\" & portfolio_name & ".xls"
@@ -576,7 +578,7 @@ ActiveWorkbook.Connections("Query - Posizioni").Refresh
 '
 '    If failed_updates <> "" Then
 '        Message = failed_updates & "presenta(no) un problema." & Chr(10) _
-'                & "Non � stato possible scaricare il file o � stato scaricato un file HTML." & Chr(10) _
+'                & "Non ? stato possible scaricare il file o ? stato scaricato un file HTML." & Chr(10) _
 '                & "I file esistenti non sono stati sovrascritti" & Chr(10) _
 '                & "I prezzi sono quindi quelli dell'ultimo aggiornamento riuscito e non attuali"
 '        MsgBox Message, vbExclamation, "Errore aggiornamento"
@@ -600,7 +602,7 @@ DoEvents
 End Sub
 
 Private Sub AggiornaQuery(Oggetto As String, Syncronous As Boolean)
-' Se syncronous � vero la querai si aggiorna in Background e la macro non attende il suo completamento
+' Se syncronous ? vero la querai si aggiorna in Background e la macro non attende il suo completamento
 With ThisWorkbook.Connections("Query - " & Oggetto)
     On Error GoTo MessaggioErrore
     .OLEDBConnection.BackgroundQuery = Syncronous
@@ -610,7 +612,7 @@ End With
 MessaggioInBarraDiStato "Ultimo aggiornamento query: " & VBA.Format(Now(), "dd.mm.yy hh:mm:ss"), 0
 Exit Sub
 MessaggioErrore:
-MsgBox "Purtroppo non � stato possibile aggiornare la query " & Oggetto & ". Verfica che i dati di origine siano disponibili.", vbCritical, "Errore aggiornamento query"
+MsgBox "Purtroppo non ? stato possibile aggiornare la query " & Oggetto & ". Verfica che i dati di origine siano disponibili.", vbCritical, "Errore aggiornamento query"
 End Sub
 
 Sub ResetLukbId(ByRef AreaSelezionata As Range)
@@ -715,18 +717,18 @@ End If
 End Sub
 
 Sub AggiornaPosizione(ByRef rgOrdini As Range)
-
 Dim Ordine As Double, VecchiaPosizione As Double, NuovaPosizione As Double, VecchioSaldo As Double, NuovoSaldo As Double, Conversione As Double, PctOrdine As Double, PctLiq As Double, PctBnd As Double, PctEqu As Double, PctImm As Double, PctCom As Double, PctHfd As Double
-Dim Formula As String, VecchioCommento As String, NuovoCommento As String, ContoAlternativo As String
+Dim Formula As String, VecchioCommento As String, NuovoCommento As String, ContoAlternativo As String, VecchiaPosizioneFormula As String
 Dim ColonnaCrncy As Range, ColonnaPrice As Range, ColonnaFxR As Range, ColonnaPos As Range, ColonnaAmnt As Range, ColonnaCtrlv As Range, ColonnaPosPct As Range, ColonnaOrdPct As Range, _
     RigaIntestazioni As Range, RigaClient As Range, RigaMRif As Range, RigaCC As Range, RigaAC As Range, RigaSC As Range, RigaLiq As Range, RigaBnd As Range, RigaEqu As Range, RigaImm As Range, RigaCom As Range, RigaHfd As Range, _
-    CellaMRif As Range, CellaCC As Range, CellaDescrizione As Range, CellaCrncy As Range, CellaPrice As Range, CellaPosizione As Range, CellaOrdine As Range, CellaAmnt As Range, CellaCtrlv As Range, CellaPosPct As Range, CellaOrdPct As Range, Temp As Variant
+    CellaMRif As Range, CellaCC As Range, CellaDescrizione As Range, CellaCrncy As Range, CellaPrice As Range, CellaPosizione As Range, CellaOrdine As Range, CellaAmnt As Range, CellaCtrlv As Range, CellaPosPct As Range, CellaOrdPct As Range, _
+    CellaFxR As Range, ColonnaAC As Range, ColonnaSC As Range, ColonnaDescrizione As Range, ColonnaPam As Range, CellaAC As Range, CellaSC As Range, CellaPam As Range
+Dim NoRigaIntestazioni As Long, ScartoRighe As Long, ScartoColonne As Long, NoColOrdine As Integer
+Dim Temp As Variant, NuovoPam As Variant
 
 ' Order log Object
 Dim LogTbl As ListObject
 Dim LogRw As ListRow
- 
-Dim ScartoRighe, ScartoColonne, NoColOrdine As Integer
 
 On Error GoTo fine
 Dim prevEvents As Boolean
@@ -741,7 +743,6 @@ Set RigaIntestazioni = rgOrdini.Parent.Range("rwIntestazioni")
 NoRigaIntestazioni = RigaIntestazioni.Row
 NoColOrdine = rgOrdini.Cells(1, 1).Column
 
-Dim CellaOrdine As Range
 For Each CellaOrdine In rgOrdini.Columns(1).Cells
     If Intersect(CellaOrdine.EntireColumn, RigaIntestazioni) = "O_Pos" And CellaOrdine <> "" And CellaOrdine <> 0 Then
         'Raccogli i dati dell'ordine
@@ -835,11 +836,11 @@ End If
         Set CellaCtrlv = Intersect(CellaOrdine.EntireRow, ColonnaCtrlv)
         Set CellaOrdPct = Intersect(CellaOrdine.EntireRow, ColonnaOrdPct)
         
-        'Se non c'� il conto corrente
+        'Se non c'e' il conto corrente
         '& CellaCrncy.Value
         If ColonnaDescrizione.Cells.Find(What:="CC " & CellaCrncy.value, LookIn:=xlFormulas2, LookAt:=xlWhole) Is Nothing Then
             ContoAlternativo = InputBox("Su quale CC desideri contabilizzare la transazione?", _
-                "Non c'� un conto corrente nella moneta della transazione", CellaOrdine.Parent.Range("MRif"))
+                "Non c'è un conto corrente nella moneta della transazione", CellaOrdine.Parent.Range("MRif"))
             Set RigaCC = ColonnaDescrizione.Find(What:="CC " & ContoAlternativo, LookIn:=xlFormulas2, LookAt:=xlWhole).EntireRow
         Else
             ContoAlternativo = ""
@@ -855,15 +856,15 @@ End If
         VecchiaPosizione = CellaPosizione.value
         VecchioSaldo = CellaCC.value
 
-        If CellaCC.Row <> CellaPosizione.Row Then ' non � una modifica del saldo valutario
-            'Se la transazione � contabilizzata su un conto alternativo
+        If CellaCC.Row <> CellaPosizione.Row Then ' non e' una modifica del saldo valutario
+            'Se la transazione ? contabilizzata su un conto alternativo
             If ContoAlternativo <> "" Then
                 Conversione = Intersect(CellaOrdine.EntireRow, ColonnaFxR) / Intersect(RigaCC, ColonnaFxR)
                 CellaCC.value = VecchioSaldo - (CellaAmnt.value * Conversione)
             Else
                 CellaCC.value = VecchioSaldo - CellaAmnt '.value
             End If
-        Else ' � uma modifica del saldo, dunque addebita/accredita moneta di riferimento
+        Else ' e' uma modifica del saldo, dunque addebita/accredita moneta di riferimento
             CellaMRif.value = CellaMRif.value - CellaCtrlv.value
         End If
         

@@ -12,7 +12,6 @@ Dim Calcolazione
 Private Sub Workbook_Activate()
 Calcolazione = Application.Calculation
 Application.Calculation = xlCalculationAutomatic
-ActiveWorkbook.Connections("Query - Posizioni").OLEDBConnection.RefreshPeriod = 1
 End Sub
 
 Private Sub Workbook_Deactivate()
@@ -22,5 +21,4 @@ ActiveWorkbook.Connections("Query - Posizioni").OLEDBConnection.RefreshPeriod = 
 End Sub
 
 Private Sub Workbook_Open()
-ActiveWorkbook.Connections("Query - Posizioni").OLEDBConnection.RefreshPeriod = 1
 End Sub

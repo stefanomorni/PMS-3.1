@@ -14,6 +14,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
 SAAProc.PortfolioSheetChange Target
 End Sub
 Private Sub Aggiorna_Campi_MarketScreener(ByVal Caller As Object)
+    Dim ISIN As String, MainURL As String, Text_To_Search As String, Field_Code As String, SearchPattern As String, Search_Result As String, MS_Code As String, Target_Cell As Range, PREFIX As String, Hyperlink_Formula As String, simbolo As String
     ISIN = Caller.Text
     MainURL = "https://www.marketscreener.com/"
     Text_To_Search = scrapehtml.GetPageContent("https://www.marketscreener.com/search/instruments?q=" & ISIN)
@@ -25,7 +26,7 @@ Private Sub Aggiorna_Campi_MarketScreener(ByVal Caller As Object)
         MS_Code = Search_Result
     End If
     
-    Field_Code = "MS_W"
+    Field_Code = "MS_Link"
     SearchPattern = "(?:ALNI0[\s\S]+?href=\x22/)(.+?)\x22 codezb"
     Set Target_Cell = Caller.Parent.Cells(Caller.Row, Caller.Parent.Range("rwIntestazioni").Cells.Find(Field_Code).Column)
     Search_Result = morfunctions.RegExMatch(Text_To_Search, SearchPattern)
