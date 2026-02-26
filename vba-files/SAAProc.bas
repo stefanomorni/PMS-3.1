@@ -141,98 +141,106 @@ Switch_Visibilita Selection, "S_"
 End Sub
 
 Sub Switch_Visibilita(Target, PREFIX)
-Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
-On Error GoTo fine
-Dim Cella As Range
-For Each Cella In Intersect(Target.Parent.Range("rwIntestazioni"), Target.Parent.UsedRange)
-    If Left(Cella, 2) = PREFIX Then
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim Cella As Range
+
+    On Error GoTo fine
+
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
+
+    For Each Cella In Intersect(Target.Parent.Range("rwIntestazioni"), Target.Parent.UsedRange)
+        If Left(Cella, 2) = PREFIX Then
             Cella.EntireColumn.Hidden = Not (Cella.EntireColumn.Hidden)
-    End If
-Next Cella
+        End If
+    Next Cella
+
 fine:
-Application.EnableEvents = prevEvents
-Application.ScreenUpdating = prevScreenUpdating
+    Application.EnableEvents = prevEvents
+    Application.ScreenUpdating = prevScreenUpdating
 End Sub
 Sub Mostra_Tutto()
-Attribute Mostra_Tutto.VB_ProcData.VB_Invoke_Func = "r\n14"
-Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
-Application.ScreenUpdating = False
-On Error GoTo fine
-Dim Cella As Range
-For Each Cella In Intersect(ActiveSheet.Range("rwIntestazioni"), ActiveSheet.UsedRange)
-    If Mid(Cella, 2, 1) = "_" Then
+    Attribute Mostra_Tutto.VB_ProcData.VB_Invoke_Func = "r\n14"
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim Cella As Range
+
+    On Error GoTo fine
+
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
+
+    For Each Cella In Intersect(ActiveSheet.Range("rwIntestazioni"), ActiveSheet.UsedRange)
+        If Mid(Cella, 2, 1) = "_" Then
             Cella.EntireColumn.Hidden = False
-    End If
-Next Cella
+        End If
+    Next Cella
+
 fine:
-Application.EnableEvents = prevEvents
-Application.ScreenUpdating = prevScreenUpdating
+    Application.EnableEvents = prevEvents
+    Application.ScreenUpdating = prevScreenUpdating
 End Sub
 
 Sub ResetPosizioni(ByRef Target As Range)
-Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
-Application.ScreenUpdating = False
-'Application.Calculation = xlCalculationManual
-On Error GoTo fine
-Dim Cella As Range
-For Each Cella In Intersect(Target.EntireRow.Cells, Target.Parent.UsedRange)
-    If Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "I_Pos" Or _
-            Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Pos" Or _
-            Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "I_Price" Or _
-            Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Pct." Then
-        Cella.ClearContents
-        Cella.ClearComments
-    End If
-Next Cella
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim Cella As Range
+
+    On Error GoTo fine
+
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
+
+    For Each Cella In Intersect(Target.EntireRow.Cells, Target.Parent.UsedRange)
+        If Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "I_Pos" Or _
+           Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Pos" Or _
+           Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "I_Price" Or _
+           Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Pct." Then
+            Cella.ClearContents
+            Cella.ClearComments
+        End If
+    Next Cella
+
 fine:
-Application.EnableEvents = prevEvents
-Application.ScreenUpdating = prevScreenUpdating
-'Application.Calculation = SAAProc.calculation_setting
+    Application.EnableEvents = prevEvents
+    Application.ScreenUpdating = prevScreenUpdating
 End Sub
 Sub RimuoviTitolo(ByRef Target As Range)
-    Dim DataRow, ColonnaPosizione As Range
+    Dim DataRow As Range, ColonnaPosizione As Range
     Dim Posizione As Double
     Dim UserResponse As VbMsgBoxResult
-    
-    MORProcedures.CancelNamedQueryAndWait "Posizioni"
-    
     Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
-    Application.ScreenUpdating = False
-    
-    On Error GoTo fine
-    
-    Set DataRow = Target.EntireRow
+    Dim prevScreenUpdating As Boolean
     Dim rng_ColonnaPosizione As Range
-Set rng_ColonnaPosizione = Target.Parent.Cells.Find(What:="Posizione", After:=Cells(1, 1), LookIn:=xlFormulas2, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext, SearchFormat:=False)
-If Not rng_ColonnaPosizione Is Nothing Then
-Set ColonnaPosizione = rng_ColonnaPosizione.EntireColumn
-End If
+
+    On Error GoTo fine
+
+    MORProcedures.CancelNamedQueryAndWait "Posizioni"
+
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
+
+    Set DataRow = Target.EntireRow
+    Set rng_ColonnaPosizione = Target.Parent.Cells.Find(What:="Posizione", After:=Cells(1, 1), LookIn:=xlFormulas2, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext, SearchFormat:=False)
+    
+    If Not rng_ColonnaPosizione Is Nothing Then
+        Set ColonnaPosizione = rng_ColonnaPosizione.EntireColumn
+    End If
 
     Posizione = Intersect(DataRow, ColonnaPosizione).Value2
-    
+
     If Posizione > 0 Then
         UserResponse = MsgBox("Sembra che ci siano dei portafogli con questo titolo." & Chr(10) & " Sei sicuro di volerlo eliminare?", vbOKCancel + vbExclamation, "Attenzione")
-        
+
         If UserResponse = vbOK Then
             DataRow.Delete Shift:=xlUp
         Else
@@ -243,161 +251,165 @@ End If
     End If
 
 fine:
-Application.EnableEvents = prevEvents
-Application.ScreenUpdating = prevScreenUpdating
+    Application.EnableEvents = prevEvents
+    Application.ScreenUpdating = prevScreenUpdating
 End Sub
 
 Sub AggiungiTitolo(ByVal Target As Range, Posizione As String)
-    Dim DataRow, ColonnaDescrizione As Range
-    Dim xlShift
-    
+    Dim DataRow As Range, ColonnaDescrizione As Range
     Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
-    Application.ScreenUpdating = False
-    '' Temprary disabling calculation doesn't help.
-    '' When reenabling, the all worksheet gets recalulated anyhow.
-    'SAAProc.calculation_setting = Application.Calculation
-    'Application.Calculation = xlCalculationManual
-    
-    On Error GoTo fine
-    
+    Dim prevScreenUpdating As Boolean
     Dim rng_ColonnaDescrizione As Range
-Set rng_ColonnaDescrizione = Target.Parent.Cells.Find(What:="Descrizione", After:=Cells(1, 1), LookIn:=xlFormulas2, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext, SearchFormat:=False)
-If Not rng_ColonnaDescrizione Is Nothing Then
-Set ColonnaDescrizione = rng_ColonnaDescrizione.EntireColumn
-End If
+
+    On Error GoTo fine
+
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
+
+    Set rng_ColonnaDescrizione = Target.Parent.Cells.Find(What:="Descrizione", After:=Cells(1, 1), LookIn:=xlFormulas2, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext, SearchFormat:=False)
+    
+    If Not rng_ColonnaDescrizione Is Nothing Then
+        Set ColonnaDescrizione = rng_ColonnaDescrizione.EntireColumn
+    End If
 
     Set DataRow = Target.EntireRow
     DataRow.Copy
+    
     If Posizione = "Sopra" Then
         DataRow.Select
     Else
         DataRow.Offset(1, 0).Select
     End If
+    
     Selection.Insert Shift:=xlDown
     Selection.SpecialCells(xlCellTypeConstants, 23).Select
     Application.CutCopyMode = False
     Selection.ClearContents
     Intersect(Selection, ColonnaDescrizione).Activate
+
 fine:
-Application.EnableEvents = prevEvents
-Application.ScreenUpdating = prevScreenUpdating
-    'Application.Calculation = SAAProc.calculation_setting
+    Application.EnableEvents = prevEvents
+    Application.ScreenUpdating = prevScreenUpdating
 End Sub
 Sub EliminaOrdini(ByRef Target As Range)
-Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
-Application.ScreenUpdating = False
-On Error GoTo fine
-Dim Cella As Range
-For Each Cella In Intersect(Target.EntireRow.Cells, Target.Parent.UsedRange)
-    If Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Pos" Then
-        Cella.ClearContents
-        Cella.ClearComments
-    End If
-Next Cella
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim Cella As Range
+
+    On Error GoTo fine
+
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
+
+    For Each Cella In Intersect(Target.EntireRow.Cells, Target.Parent.UsedRange)
+        If Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Pos" Then
+            Cella.ClearContents
+            Cella.ClearComments
+        End If
+    Next Cella
+
 fine:
-Application.EnableEvents = prevEvents
-Application.ScreenUpdating = prevScreenUpdating
+    Application.EnableEvents = prevEvents
+    Application.ScreenUpdating = prevScreenUpdating
 End Sub
 Sub Registra_Ordini(ByRef Target As Range)
-Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
-Application.ScreenUpdating = False
-On Error GoTo fine
-Dim Cella As Range
-For Each Cella In Intersect(Target.EntireRow.Cells, Target.Parent.UsedRange)
-    If Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Pos" And Cella.value <> "" Then
-        'cella.Select
-        AggiornaPosizione Cella.Cells(1, 1) 'Selection
-    End If
-Next Cella
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim Cella As Range
+
+    On Error GoTo fine
+
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
+
+    For Each Cella In Intersect(Target.EntireRow.Cells, Target.Parent.UsedRange)
+        If Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Pos" And Cella.value <> "" Then
+            AggiornaPosizione Cella.Cells(1, 1)
+        End If
+    Next Cella
+
 fine:
-Application.EnableEvents = prevEvents
-Application.ScreenUpdating = prevScreenUpdating
+    Application.EnableEvents = prevEvents
+    Application.ScreenUpdating = prevScreenUpdating
 End Sub
 Sub Esporta_Ordini(ByRef Target As Range)
     Dim LogTbl As ListObject, LogRw As ListRow
     Dim wsName As String
-Dim Ordini As Collection
-Dim O As clsOrdine
-Dim Calcolazione As XlCalculation
-Dim wksName As String
-Dim OrdersWs As Worksheet
-Dim OrdersTbl As ListObject
-Dim OrderRw As ListRow
-Dim Security As String, ISIN As String, Crncy As String, Client As String, Portfolio As String
-Dim Price As Double, I_Pos As Double, O_Pos As Double, Amnt As Double
-Dim Valoren As String
-Dim Ordine As clsOrdine
-Dim Riga As Range
+    Dim Ordini As Collection
+    Dim O As clsOrdine
+    Dim Calcolazione As XlCalculation
+    Dim wksName As String
+    Dim OrdersWs As Worksheet
+    Dim OrdersTbl As ListObject
+    Dim OrderRw As ListRow
+    Dim Security As String, ISIN As String, Crncy As String, Client As String, Portfolio As String
+    Dim Price As Double, I_Pos As Double, O_Pos As Double, Amnt As Double
+    Dim Valoren As String
+    Dim Ordine As clsOrdine
+    Dim Riga As Range
+    Dim prevCalc As XlCalculation
+    Dim Cella As Range
 
-Calcolazione = Application.Calculation
-Dim prevCalc As XlCalculation
+    On Error GoTo fine
+
     prevCalc = Application.Calculation
     Application.Calculation = xlCalculationManual
-On Error GoTo fine
-Set Ordini = New Collection
+    Set Ordini = New Collection
 
-Dim Cella As Range
-For Each Cella In Intersect(Target.EntireRow.Cells, Target.Parent.UsedRange)
-    Debug.Print Cella.Address
-    If Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Descrizione" Then
-        Security = Cella.Text
-    ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "ISIN" Then
-        ISIN = Cella.Text
-    ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Valoren" Then
-        Valoren = Cella.Text
-    ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Crncy" Then
-        Crncy = Cella.Text
-    ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Price" Then
-        Price = Cella.value
-    ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "I_Pos" Then
-        Client = Cella.Parent.Cells(1, Cella.Column)
-        Portfolio = Cella.Parent.Cells(2, Cella.Column)
-    ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Pos" Then
-        O_Pos = Cella.value
-    ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Amnt" Then
-        Amnt = Cella.value
-    ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Ctrlv" Then
-        If O_Pos <> 0 Then
-            Set O = New clsOrdine
-            O.Client = Client
-            O.Portfolio = Portfolio
-            O.Security = Security
-            O.ISIN = ISIN
-            O.Crncy = Crncy
-            O.Price = CLng(Price)
-            O.Number = CLng(O_Pos)
-            O.Amount = CLng(Amnt)
-            If Len(O.Portfolio) = 8 Then
-                O.Bank = "BdS"
-            Else
-                O.Bank = "UBS"
+    For Each Cella In Intersect(Target.EntireRow.Cells, Target.Parent.UsedRange)
+        Debug.Print Cella.Address
+        If Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Descrizione" Then
+            Security = Cella.Text
+        ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "ISIN" Then
+            ISIN = Cella.Text
+        ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Valoren" Then
+            Valoren = Cella.Text
+        ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Crncy" Then
+            Crncy = Cella.Text
+        ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "Price" Then
+            Price = Cella.value
+        ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "I_Pos" Then
+            Client = Cella.Parent.Cells(1, Cella.Column)
+            Portfolio = Cella.Parent.Cells(2, Cella.Column)
+        ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Pos" Then
+            O_Pos = Cella.value
+        ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Amnt" Then
+            Amnt = Cella.value
+        ElseIf Target.Parent.Cells(Target.Parent.Range("rwIntestazioni").Row, Cella.Column) = "O_Ctrlv" Then
+            If O_Pos <> 0 Then
+                Set O = New clsOrdine
+                O.Client = Client
+                O.Portfolio = Portfolio
+                O.Security = Security
+                O.ISIN = ISIN
+                O.Crncy = Crncy
+                O.Price = CLng(Price)
+                O.Number = CLng(O_Pos)
+                O.Amount = CLng(Amnt)
+                
+                If Len(O.Portfolio) = 8 Then
+                    O.Bank = "BdS"
+                Else
+                    O.Bank = "UBS"
+                End If
+                
+                Ordini.Add O
             End If
-            Ordini.Add O
         End If
-    End If
-Next Cella
+    Next Cella
 
-If Ordini.Count > 0 Then
-    wsName = Left(O.Security, 8) & " (" & ISIN & ")"
-    If morfunctions.SheetExists(ActiveWorkbook, wsName) Then
-        Set OrdersWs = ActiveWorkbook.Worksheets(wsName)
-        Set OrdersTbl = OrdersWs.ListObjects("Ordini")
-    Else
+    If Ordini.Count > 0 Then
+        wsName = Left(O.Security, 8) & " (" & ISIN & ")"
+        If morfunctions.SheetExists(ActiveWorkbook, wsName) Then
+            Set OrdersWs = ActiveWorkbook.Worksheets(wsName)
+            Set OrdersTbl = OrdersWs.ListObjects("Ordini")
+        Else
         'Crea un file degli ordini
         Set OrdersWs = Worksheets.Add()
         With OrdersWs
@@ -616,49 +628,57 @@ MsgBox "Purtroppo non ? stato possibile aggiornare la query " & Oggetto & ". Ver
 End Sub
 
 Sub ResetLukbId(ByRef AreaSelezionata As Range)
-Dim riga_intestazioni As Range, colonna_smo_id_origine As Range, riga_search_id_posizioni As Range, colonna_lukb_id_posizioni As Range
-Dim lukb_to_reset As Range
-Dim search_id As Variant
-Dim prima_riga_selezione As Range
-Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
+    Dim riga_intestazioni As Range, colonna_smo_id_origine As Range, riga_search_id_posizioni As Range, colonna_lukb_id_posizioni As Range
+    Dim lukb_to_reset As Range
+    Dim search_id As Variant
+    Dim prima_riga_selezione As Range
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim rng_colonna_smo_id_origine As Range
+    Dim rng_riga_search As Range
+    Dim rng_col_lukb As Range
 
-On Error GoTo fine
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
+    On Error GoTo fine
 
-Set prima_riga_selezione = AreaSelezionata.Cells(1, 1).EntireRow
-Dim rng_colonna_smo_id_origine As Range
-Set rng_colonna_smo_id_origine = AreaSelezionata.Parent.Cells.Find(What:="smo_id", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_colonna_smo_id_origine Is Nothing Then
-Set colonna_smo_id_origine = rng_colonna_smo_id_origine.EntireColumn
-End If
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
 
-search_id = Intersect(prima_riga_selezione, colonna_smo_id_origine)
+    Set prima_riga_selezione = AreaSelezionata.Cells(1, 1).EntireRow
+    Set rng_colonna_smo_id_origine = AreaSelezionata.Parent.Cells.Find(What:="smo_id", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+    
+    If Not rng_colonna_smo_id_origine Is Nothing Then
+        Set colonna_smo_id_origine = rng_colonna_smo_id_origine.EntireColumn
+    End If
 
-Dim rng_riga_search As Range
-Set rng_riga_search = Posizioni.Cells.Find(What:=search_id, After:=Cells(1, 1), LookIn:=xlValues _
-        , LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
-        MatchCase:=False, SearchFormat:=False)
-If Not rng_riga_search Is Nothing Then Set riga_search_id_posizioni = rng_riga_search.EntireRow
+    search_id = Intersect(prima_riga_selezione, colonna_smo_id_origine)
 
-Dim rng_col_lukb As Range
-Set rng_col_lukb = Posizioni.Cells.Find(What:="LUKB_id", After:=Cells(1, 1), LookIn:=xlValues _
-        , LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
-        MatchCase:=False, SearchFormat:=False)
-If Not rng_col_lukb Is Nothing Then Set colonna_lukb_id_posizioni = rng_col_lukb.EntireColumn
+    Set rng_riga_search = Posizioni.Cells.Find(What:=search_id, After:=Cells(1, 1), LookIn:=xlValues, _
+                                             LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+                                             MatchCase:=False, SearchFormat:=False)
+    
+    If Not rng_riga_search Is Nothing Then
+        Set riga_search_id_posizioni = rng_riga_search.EntireRow
+    End If
 
-If riga_search_id_posizioni Is Nothing Or colonna_lukb_id_posizioni Is Nothing Then GoTo fine
-Set lukb_to_reset = Intersect(riga_search_id_posizioni, colonna_lukb_id_posizioni)
-lukb_to_reset.value = ""
-ActiveWorkbook.Connections("Query - Posizioni").Refresh
+    Set rng_col_lukb = Posizioni.Cells.Find(What:="LUKB_id", After:=Cells(1, 1), LookIn:=xlValues, _
+                                          LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlNext, _
+                                          MatchCase:=False, SearchFormat:=False)
+    
+    If Not rng_col_lukb Is Nothing Then
+        Set colonna_lukb_id_posizioni = rng_col_lukb.EntireColumn
+    End If
+
+    If riga_search_id_posizioni Is Nothing Or colonna_lukb_id_posizioni Is Nothing Then GoTo fine
+    
+    Set lukb_to_reset = Intersect(riga_search_id_posizioni, colonna_lukb_id_posizioni)
+    lukb_to_reset.value = ""
+    ActiveWorkbook.Connections("Query - Posizioni").Refresh
 
 fine:
-Application.EnableEvents = prevEvents
-Application.ScreenUpdating = prevScreenUpdating
-
+    Application.EnableEvents = prevEvents
+    Application.ScreenUpdating = prevScreenUpdating
 End Sub
 
 Sub PorfolioSheetSelectionChange(ByRef Target As Range)
@@ -717,27 +737,28 @@ End If
 End Sub
 
 Sub AggiornaPosizione(ByRef rgOrdini As Range)
-Dim Ordine As Double, VecchiaPosizione As Double, NuovaPosizione As Double, VecchioSaldo As Double, NuovoSaldo As Double, Conversione As Double, PctOrdine As Double, PctLiq As Double, PctBnd As Double, PctEqu As Double, PctImm As Double, PctCom As Double, PctHfd As Double
-Dim Formula As String, VecchioCommento As String, NuovoCommento As String, ContoAlternativo As String, VecchiaPosizioneFormula As String
-Dim ColonnaCrncy As Range, ColonnaPrice As Range, ColonnaFxR As Range, ColonnaPos As Range, ColonnaAmnt As Range, ColonnaCtrlv As Range, ColonnaPosPct As Range, ColonnaOrdPct As Range, _
-    RigaIntestazioni As Range, RigaClient As Range, RigaMRif As Range, RigaCC As Range, RigaAC As Range, RigaSC As Range, RigaLiq As Range, RigaBnd As Range, RigaEqu As Range, RigaImm As Range, RigaCom As Range, RigaHfd As Range, _
-    CellaMRif As Range, CellaCC As Range, CellaDescrizione As Range, CellaCrncy As Range, CellaPrice As Range, CellaPosizione As Range, CellaOrdine As Range, CellaAmnt As Range, CellaCtrlv As Range, CellaPosPct As Range, CellaOrdPct As Range, _
-    CellaFxR As Range, ColonnaAC As Range, ColonnaSC As Range, ColonnaDescrizione As Range, ColonnaPam As Range, CellaAC As Range, CellaSC As Range, CellaPam As Range
-Dim NoRigaIntestazioni As Long, ScartoRighe As Long, ScartoColonne As Long, NoColOrdine As Integer
-Dim Temp As Variant, NuovoPam As Variant
+    Dim Ordine As Double, VecchiaPosizione As Double, NuovaPosizione As Double, VecchioSaldo As Double, NuovoSaldo As Double, Conversione As Double, PctOrdine As Double, PctLiq As Double, PctBnd As Double, PctEqu As Double, PctImm As Double, PctCom As Double, PctHfd As Double
+    Dim Formula As String, VecchioCommento As String, NuovoCommento As String, ContoAlternativo As String, VecchiaPosizioneFormula As String
+    Dim ColonnaCrncy As Range, ColonnaPrice As Range, ColonnaFxR As Range, ColonnaPos As Range, ColonnaAmnt As Range, ColonnaCtrlv As Range, ColonnaPosPct As Range, ColonnaOrdPct As Range, _
+        RigaIntestazioni As Range, RigaClient As Range, RigaMRif As Range, RigaCC As Range, RigaAC As Range, RigaSC As Range, RigaLiq As Range, RigaBnd As Range, RigaEqu As Range, RigaImm As Range, RigaCom As Range, RigaHfd As Range, _
+        CellaMRif As Range, CellaCC As Range, CellaDescrizione As Range, CellaCrncy As Range, CellaPrice As Range, CellaPosizione As Range, CellaOrdine As Range, CellaAmnt As Range, CellaCtrlv As Range, CellaPosPct As Range, CellaOrdPct As Range, _
+        CellaFxR As Range, ColonnaAC As Range, ColonnaSC As Range, ColonnaDescrizione As Range, ColonnaPam As Range, CellaAC As Range, CellaSC As Range, CellaPam As Range
+    Dim NoRigaIntestazioni As Long, ScartoRighe As Long, ScartoColonne As Long, NoColOrdine As Integer
+    Dim Temp As Variant, NuovoPam As Variant
+    Dim LogTbl As ListObject
+    Dim LogRw As ListRow
+    Dim prevEvents As Boolean
+    Dim prevScreenUpdating As Boolean
+    Dim rng_ColonnaAC As Range, rng_ColonnaSC As Range, rng_ColonnaDescrizione As Range, rng_ColonnaCrncy As Range
+    Dim rng_ColonnaFxR As Range, rng_ColonnaPrice As Range, rng_ColonnaPos As Range, rng_ColonnaPam As Range
+    Dim rng_ColonnaPosPct As Range, rng_ColonnaAmnt As Range, rng_ColonnaCtrlv As Range, rng_ColonnaOrdPct As Range
 
-' Order log Object
-Dim LogTbl As ListObject
-Dim LogRw As ListRow
+    On Error GoTo fine
 
-On Error GoTo fine
-Dim prevEvents As Boolean
-Dim prevScreenUpdating As Boolean
-prevEvents = Application.EnableEvents
-prevScreenUpdating = Application.ScreenUpdating
-Application.EnableEvents = False
-Application.ScreenUpdating = False
-Application.ScreenUpdating = False
+    prevEvents = Application.EnableEvents
+    prevScreenUpdating = Application.ScreenUpdating
+    Application.EnableEvents = False
+    Application.ScreenUpdating = False
 
 Set RigaIntestazioni = rgOrdini.Parent.Range("rwIntestazioni")
 NoRigaIntestazioni = RigaIntestazioni.Row
@@ -745,81 +766,68 @@ NoColOrdine = rgOrdini.Cells(1, 1).Column
 
 For Each CellaOrdine In rgOrdini.Columns(1).Cells
     If Intersect(CellaOrdine.EntireColumn, RigaIntestazioni) = "O_Pos" And CellaOrdine <> "" And CellaOrdine <> 0 Then
-        'Raccogli i dati dell'ordine
+                'Raccogli i dati dell'ordine
         Ordine = CellaOrdine.value
-        
-        Dim rng_ColonnaAC As Range
-Set rng_ColonnaAC = CellaOrdine.Parent.Cells.Find(What:="AC", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaAC Is Nothing Then
-Set ColonnaAC = rng_ColonnaAC.EntireColumn
-End If
 
-        Dim rng_ColonnaSC As Range
-Set rng_ColonnaSC = CellaOrdine.Parent.Cells.Find(What:="SC", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaSC Is Nothing Then
-Set ColonnaSC = rng_ColonnaSC.EntireColumn
-End If
+        Set rng_ColonnaAC = CellaOrdine.Parent.Cells.Find(What:="AC", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        If Not rng_ColonnaAC Is Nothing Then
+            Set ColonnaAC = rng_ColonnaAC.EntireColumn
+        End If
 
-        Dim rng_ColonnaDescrizione As Range
-Set rng_ColonnaDescrizione = CellaOrdine.Parent.Cells.Find(What:="Descrizione", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaDescrizione Is Nothing Then
-Set ColonnaDescrizione = rng_ColonnaDescrizione.EntireColumn
-End If
+        Set rng_ColonnaSC = CellaOrdine.Parent.Cells.Find(What:="SC", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        If Not rng_ColonnaSC Is Nothing Then
+            Set ColonnaSC = rng_ColonnaSC.EntireColumn
+        End If
 
-        Dim rng_ColonnaCrncy As Range
-Set rng_ColonnaCrncy = CellaOrdine.Parent.Cells.Find(What:="Crncy", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaCrncy Is Nothing Then
-Set ColonnaCrncy = rng_ColonnaCrncy.EntireColumn
-End If
+        Set rng_ColonnaDescrizione = CellaOrdine.Parent.Cells.Find(What:="Descrizione", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        if Not rng_ColonnaDescrizione Is Nothing Then
+            Set ColonnaDescrizione = rng_ColonnaDescrizione.EntireColumn
+        End If
 
-        Dim rng_ColonnaFxR As Range
-Set rng_ColonnaFxR = CellaOrdine.Parent.Cells.Find(What:="FxR", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaFxR Is Nothing Then
-Set ColonnaFxR = rng_ColonnaFxR.EntireColumn
-End If
+        Set rng_ColonnaCrncy = CellaOrdine.Parent.Cells.Find(What:="Crncy", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        If Not rng_ColonnaCrncy Is Nothing Then
+            Set ColonnaCrncy = rng_ColonnaCrncy.EntireColumn
+        End If
 
-        Dim rng_ColonnaPrice As Range
-Set rng_ColonnaPrice = CellaOrdine.Parent.Cells.Find(What:="Price", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaPrice Is Nothing Then
-Set ColonnaPrice = rng_ColonnaPrice.EntireColumn
-End If
+        Set rng_ColonnaFxR = CellaOrdine.Parent.Cells.Find(What:="FxR", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        If Not rng_ColonnaFxR Is Nothing Then
+            Set ColonnaFxR = rng_ColonnaFxR.EntireColumn
+        End If
 
+        Set rng_ColonnaPrice = CellaOrdine.Parent.Cells.Find(What:="Price", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        If Not rng_ColonnaPrice Is Nothing Then
+            Set ColonnaPrice = rng_ColonnaPrice.EntireColumn
+        End If
 
-        Dim rng_ColonnaPos As Range
-Set rng_ColonnaPos = CellaOrdine.Parent.Cells.Find(What:="I_Pos", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, SearchFormat:=False)
-If Not rng_ColonnaPos Is Nothing Then
-Set ColonnaPos = rng_ColonnaPos.EntireColumn
-End If
+        Set rng_ColonnaPos = CellaOrdine.Parent.Cells.Find(What:="I_Pos", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, SearchFormat:=False)
+        If Not rng_ColonnaPos Is Nothing Then
+            Set ColonnaPos = rng_ColonnaPos.EntireColumn
+        End If
 
-        Dim rng_ColonnaPam As Range
-Set rng_ColonnaPam = CellaOrdine.Parent.Cells.Find(What:="I_Price", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlFormulas2, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, SearchFormat:=False)
-If Not rng_ColonnaPam Is Nothing Then
-Set ColonnaPam = rng_ColonnaPam.EntireColumn
-End If
+        Set rng_ColonnaPam = CellaOrdine.Parent.Cells.Find(What:="I_Price", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlFormulas2, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, SearchFormat:=False)
+        If Not rng_ColonnaPam Is Nothing Then
+            Set ColonnaPam = rng_ColonnaPam.EntireColumn
+        End If
 
-        Dim rng_ColonnaPosPct As Range
-Set rng_ColonnaPosPct = CellaOrdine.Parent.Cells.Find(What:="I_Pct", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, SearchFormat:=False)
-If Not rng_ColonnaPosPct Is Nothing Then
-Set ColonnaPosPct = rng_ColonnaPosPct.EntireColumn
-End If
+        Set rng_ColonnaPosPct = CellaOrdine.Parent.Cells.Find(What:="I_Pct", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlPrevious, SearchFormat:=False)
+        If Not rng_ColonnaPosPct Is Nothing Then
+            Set ColonnaPosPct = rng_ColonnaPosPct.EntireColumn
+        End If
 
-        Dim rng_ColonnaAmnt As Range
-Set rng_ColonnaAmnt = CellaOrdine.Parent.Cells.Find(What:="O_Amnt", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaAmnt Is Nothing Then
-Set ColonnaAmnt = rng_ColonnaAmnt.EntireColumn
-End If
+        Set rng_ColonnaAmnt = CellaOrdine.Parent.Cells.Find(What:="O_Amnt", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        If Not rng_ColonnaAmnt Is Nothing Then
+            Set ColonnaAmnt = rng_ColonnaAmnt.EntireColumn
+        End If
 
-        Dim rng_ColonnaCtrlv As Range
-Set rng_ColonnaCtrlv = CellaOrdine.Parent.Cells.Find(What:="O_Ctrlv", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaCtrlv Is Nothing Then
-Set ColonnaCtrlv = rng_ColonnaCtrlv.EntireColumn
-End If
+        Set rng_ColonnaCtrlv = CellaOrdine.Parent.Cells.Find(What:="O_Ctrlv", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        If Not rng_ColonnaCtrlv Is Nothing Then
+            Set ColonnaCtrlv = rng_ColonnaCtrlv.EntireColumn
+        End If
 
-        Dim rng_ColonnaOrdPct As Range
-Set rng_ColonnaOrdPct = CellaOrdine.Parent.Cells.Find(What:="O_Pct", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-If Not rng_ColonnaOrdPct Is Nothing Then
-Set ColonnaOrdPct = rng_ColonnaOrdPct.EntireColumn
-End If
+        Set rng_ColonnaOrdPct = CellaOrdine.Parent.Cells.Find(What:="O_Pct", After:=Cells(NoRigaIntestazioni, NoColOrdine), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
+        If Not rng_ColonnaOrdPct Is Nothing Then
+            Set ColonnaOrdPct = rng_ColonnaOrdPct.EntireColumn
+        End If
 
 
         
@@ -970,13 +978,11 @@ Sub SetColumnWidthByHeader( _
     Dim ws As Worksheet
     Dim qt As QueryTable
     Dim lo As ListObject
+    Dim prevCalc As XlCalculation
+
+    On Error Resume Next
 
     Set ws = ActiveSheet
-
-    '---------------------------------------------------------
-    ' PRE-RUN: Stop background queries and freeze UI
-    '---------------------------------------------------------
-    On Error Resume Next
 
     ' Stop QueryTables
     For Each qt In ws.QueryTables
@@ -992,13 +998,8 @@ Sub SetColumnWidthByHeader( _
 
     Application.ScreenUpdating = False
     Application.EnableEvents = False
-    Dim prevCalc As XlCalculation
     prevCalc = Application.Calculation
     Application.Calculation = xlCalculationManual
-
-    '---------------------------------------------------------
-    ' MAIN LOGIC
-    '---------------------------------------------------------
 
     ' Resolve the named range
     On Error GoTo ErrHandler
@@ -1024,7 +1025,6 @@ Sub SetColumnWidthByHeader( _
     ' Loop through each cell in the header row
     For Each c In rng.Cells
         If c.Column > firstColNum Then
-
             txt = Trim(CStr(c.value))
 
             ' Empty cells remain untouched
@@ -1042,14 +1042,11 @@ Sub SetColumnWidthByHeader( _
             ' Percent columns: contains "%" OR "_Pct"
             If InStr(1, txt, "%", vbTextCompare) > 0 _
                Or InStr(1, txt, "_Pct", vbTextCompare) > 0 Then
-
                 c.EntireColumn.ColumnWidth = Pct_Column_Width
-
             ' Currency columns: contains "_" (but not _Pct)
             ElseIf InStr(1, txt, "_", vbTextCompare) > 0 Then
                 c.EntireColumn.ColumnWidth = Currency_Column_Width
             End If
-
         End If
 
 NextCell:
@@ -1057,20 +1054,13 @@ NextCell:
 
     GoTo Cleanup
 
-'---------------------------------------------------------
-' ERROR HANDLING
-'---------------------------------------------------------
 ErrHandler:
     MsgBox "Named range 'rwIntestazioni' not found.", vbCritical
 
-'---------------------------------------------------------
-' CLEANUP: Restore Excel state
-'---------------------------------------------------------
 Cleanup:
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = prevCalc
-
 End Sub
 
 
@@ -1085,10 +1075,8 @@ Sub SetWorkbookDefaultFont( _
     Dim ws As Worksheet
     Dim qt As QueryTable
     Dim lo As ListObject
+    Dim prevCalc As XlCalculation
 
-    '---------------------------------------------------------
-    ' PRE-RUN: Stop background queries and freeze UI
-    '---------------------------------------------------------
     On Error Resume Next
 
     ' Stop QueryTables
@@ -1109,26 +1097,19 @@ Sub SetWorkbookDefaultFont( _
 
     Application.ScreenUpdating = False
     Application.EnableEvents = False
-    Dim prevCalc As XlCalculation
     prevCalc = Application.Calculation
     Application.Calculation = xlCalculationManual
 
-    '---------------------------------------------------------
-    ' MAIN LOGIC: Apply font to all worksheets
-    '---------------------------------------------------------
+    ' Apply font to all worksheets
     For Each ws In ActiveWorkbook.Worksheets
         ws.Cells.Font.Name = FontName
         ws.Cells.Font.Size = FontSize
     Next ws
 
-    '---------------------------------------------------------
-    ' CLEANUP: Restore Excel state
-    '---------------------------------------------------------
 Cleanup:
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = prevCalc
-
 End Sub
 
 Sub ApplyWorkbookDefaultFont()
