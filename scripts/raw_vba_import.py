@@ -28,8 +28,11 @@ def read_source(f: Path) -> list[str]:
 def strip_vbe_headers(lines: list[str]) -> str:
     """
     Strip VBE file headers (VERSION, Attribute, BEGIN/END blocks) and return
-    the remaining code as a single string. Used for both Document and
-    code-module injection so that AddFromString receives only clean code.
+    the remaining code as a single string. 
+    
+    CRITICAL: Also strips 'Attribute' lines that might be embedded within 
+    procedures (e.g., VB_Invoke_Func) which cause syntax errors when 
+    injected via AddFromString.
     """
     clean = []
     in_begin = False
@@ -38,10 +41,13 @@ def strip_vbe_headers(lines: list[str]) -> str:
     for line in lines:
         stripped = line.strip()
 
+        # Always skip Attribute lines regardless of position
+        if stripped.startswith("Attribute "):
+            continue
+
         if not header_done:
             if (
                 stripped.startswith("VERSION ")
-                or stripped.startswith("Attribute ")
                 or stripped.startswith("BEGIN")
             ):
                 if stripped.startswith("BEGIN"):

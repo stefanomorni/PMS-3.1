@@ -6,10 +6,10 @@ import argparse
 from pathlib import Path
 
 # ================================================================== #
-#  Universal Office VBA Watcher (Nuclear + Safe Stripper)             #
+#  Universal Office VBA Watcher (v2.0 - AddFromString + Meta-Strip)   #
 # ================================================================== #
-# Version: 1.9 (2026-02-26)
-# Strategy: Remove then Import + Robust Header Stripping for Documents
+# Strategy: AddFromString for all code-only modules to prevent
+#           encoding mismatches while stripping illegal Attributes.
 # ================================================================== #
 
 
@@ -32,14 +32,12 @@ class OfficeVBAWatcher:
         for app in xw.apps:
             try:
                 xl = app.api
-                # Try with and without extension
                 possible_names = [self.target_name]
                 if "." not in self.target_name:
                     possible_names.extend(
                         [
                             f"{self.target_name}.xlsm",
                             f"{self.target_name}.xlam",
-                            f"{self.target_name}.xlsx",
                         ]
                     )
 
@@ -71,73 +69,92 @@ class OfficeVBAWatcher:
         except:
             pass
 
+    def strip_metadata(self, lines):
+        """Strip VBE headers and embedded Attribute lines."""
+        clean = []
+        in_begin = False
+        header_done = False
+
+        for line in lines:
+            stripped = line.strip()
+
+            # Always skip Attribute lines (prevents syntax errors in AddFromString)
+            if stripped.startswith("Attribute "):
+                continue
+
+            if not header_done:
+                if stripped.startswith("VERSION ") or stripped.startswith("BEGIN"):
+                    if stripped.startswith("BEGIN"):
+                        in_begin = True
+                    continue
+                if in_begin:
+                    if stripped == "END":
+                        in_begin = False
+                    continue
+                if stripped:
+                    header_done = True
+                else:
+                    continue
+
+            if header_done:
+                clean.append(line)
+
+        return "".join(clean).strip()
+
     def sync_file(self, path):
         name = path.stem
+        ext = path.suffix.lower()
         print(f"Syncing: {path.name} -> {self.wb.name}...")
+
         try:
             self.reset_vbe()
+            project = self.wb.api.VBProject
 
+            # 1. Identify Existing Component
             try:
-                comp = self.wb.api.VBProject.VBComponents(name)
+                comp = project.VBComponents(name)
                 comp_type = comp.Type
             except:
                 comp = None
                 comp_type = None
 
-            # Standard Modules (1), Class Modules (2), UserForms (3)
-            if comp and comp_type in [1, 2, 3]:
-                print(f"    Removing existing {name}...")
-                self.wb.api.VBProject.VBComponents.Remove(comp)
-                comp = None
+            # 2. Forms stick to .Import() as they have .frx binary dependencies
+            if ext == ".frm":
+                if comp:
+                    project.VBComponents.Remove(comp)
+                project.VBComponents.Import(str(path.absolute()))
+                print(f"    [SUCCESS] {name} imported (via Import).")
+                return
 
-            if not comp or comp_type in [1, 2, 3]:
-                print(f"    Importing {name} from file...")
-                self.wb.api.VBProject.VBComponents.Import(str(path.absolute()))
-                print(f"    [SUCCESS] {name} imported.")
-            else:
-                # Document modules (Type 100)
-                print(f"    Updating Document module {name}...")
-                try:
-                    with open(path, "r", encoding="windows-1252") as f:
-                        lines = f.readlines()
-                except:
-                    with open(path, "r", encoding="utf-8-sig") as f:
-                        lines = f.readlines()
+            # 3. Code Modules (.bas, .cls, and Document modules)
+            # Read source
+            try:
+                with open(path, "r", encoding="utf-8-sig") as f:
+                    lines = f.readlines()
+            except UnicodeDecodeError:
+                with open(path, "r", encoding="windows-1252") as f:
+                    lines = f.readlines()
 
-                clean_lines = []
-                in_begin_end_block = False
-                header_processed = False
+            code = self.strip_metadata(lines)
 
-                for line in lines:
-                    trimmed = line.strip()
-                    if not header_processed:
-                        if (
-                            trimmed.startswith("VERSION ")
-                            or trimmed.startswith("Attribute ")
-                            or trimmed.startswith("BEGIN")
-                        ):
-                            if trimmed.startswith("BEGIN"):
-                                in_begin_end_block = True
-                            continue
-                        if in_begin_end_block:
-                            if trimmed == "END":
-                                in_begin_end_block = False
-                            continue
-                        if trimmed != "":
-                            header_processed = True
-                        else:
-                            continue
+            if not comp or comp_type in [1, 2]:
+                # Non-document modules: Remove and Re-add fresh
+                if comp:
+                    project.VBComponents.Remove(comp)
 
-                    if header_processed:
-                        clean_lines.append(line)
+                vba_type = 1 if ext == ".bas" else 2
+                new_comp = project.VBComponents.Add(vba_type)
+                new_comp.Name = name
+                comp = new_comp
 
-                code = "".join(clean_lines).strip()
-                cm = comp.CodeModule
-                if cm.CountOfLines > 0:
-                    cm.DeleteLines(1, cm.CountOfLines)
-                if code:
-                    cm.AddFromString(code)
-                print(f"    [SUCCESS] {name} (Document) updated.")
+            # Inject code
+            cm = comp.CodeModule
+            if cm.CountOfLines > 0:
+                cm.DeleteLines(1, cm.CountOfLines)
+            if code:
+                cm.AddFromString(code)
+
+            print(f"    [SUCCESS] {name} updated via AddFromString.")
 
         except Exception as e:
             print(f"    [ERROR] {e}")
