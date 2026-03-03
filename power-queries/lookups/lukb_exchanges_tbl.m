@@ -1,7 +1,7 @@
 // Query   : lukb_exchanges_tbl
 // Category: lookups
 // Source  : PMS 3.1.xlsm_PowerQuery.m
-// Split   : 2026-02-24T17:03:57+00:00
+// Split   : 2026-03-03T17:39:11+00:00
 
 let
         Source = Excel.Workbook(File.Contents("D:\Cloud\OneDrive\MC\InvData\Reference Data.xlsm"), null, true),

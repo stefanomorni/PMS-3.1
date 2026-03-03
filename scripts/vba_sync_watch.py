@@ -6,10 +6,10 @@ import argparse
 from pathlib import Path
 
 # ================================================================== #
-#  Universal Office VBA Watcher (v2.0 - AddFromString + Meta-Strip)   #
+#  Universal Office VBA Watcher (OneDrive Resistant)                  #
 # ================================================================== #
-# Strategy: AddFromString for all code-only modules to prevent
-#           encoding mismatches while stripping illegal Attributes.
+# Version: 1.1 (2026-02-28)
+# Strategy: Name-based correlation (immune to FullPath URL flip)
 # ================================================================== #
 
 
@@ -22,172 +22,90 @@ class OfficeVBAWatcher:
         self.poll_interval = poll_interval
         self.vba_dir = Path(vba_dir)
         self.hashes = {}
+        self.app = None
         self.wb = None
 
     def connect(self):
         """Connect to the open document/workbook by Name."""
-        print(f"Connecting to {self.app_type.capitalize()} for: {self.target_name}...")
+        print(
+            f"Connecting to {self.app_type.capitalize()} for: {self.target_name or 'Active Book'}..."
+        )
 
-        # Try exact name first
-        for app in xw.apps:
-            try:
-                xl = app.api
-                possible_names = [self.target_name]
-                if "." not in self.target_name:
-                    possible_names.extend(
-                        [
-                            f"{self.target_name}.xlsm",
-                            f"{self.target_name}.xlam",
-                        ]
-                    )
-
-                for name in possible_names:
-                    try:
-                        wb_api = xl.Workbooks(name)
-                        self.wb = app.books[wb_api.Name]
-                        print(f"  [CONNECTED] {wb_api.FullName}")
-                        return True
-                    except:
-                        continue
-            except:
-                continue
-
-        # Fallback: substring match
+        # xlwings.apps works only for Excel.
         for app in xw.apps:
             for b in app.books:
-                if not self.target_name or self.target_name.lower() in b.name.lower():
+                if not self.target_name or b.name.lower() == self.target_name.lower():
                     self.wb = b
                     self.target_name = b.name
                     print(f"  [CONNECTED] {b.fullname}")
                     return True
         return False
 
-    def reset_vbe(self):
-        """Try to reset the VBE (Stop debugging)."""
-        try:
-            self.wb.api.VBProject.VBE.CommandBars.FindControl(Id=228).Execute()
-        except:
-            pass
+    def export_all(self):
+        print(f"Exporting modules to {self.vba_dir}...")
+        self.vba_dir.mkdir(exist_ok=True)
+        for comp in self.wb.api.VBProject.VBComponents:
+            try:
+                # 1=Standard, 2=Class, 3=Form, 100=Document/Sheet
+                ext = ".bas" if comp.Type == 1 else ".cls"
+                if comp.Type == 3:
+                    ext = ".frm"
 
-    def strip_metadata(self, lines):
-        """Strip VBE headers and embedded Attribute lines."""
-        clean = []
-        in_begin = False
-        header_done = False
-
-        for line in lines:
-            stripped = line.strip()
-
-            # Always skip Attribute lines (prevents syntax errors in AddFromString)
-            if stripped.startswith("Attribute "):
-                continue
-
-            if not header_done:
-                if stripped.startswith("VERSION ") or stripped.startswith("BEGIN"):
-                    if stripped.startswith("BEGIN"):
-                        in_begin = True
-                    continue
-                if in_begin:
-                    if stripped == "END":
-                        in_begin = False
-                    continue
-                if stripped:
-                    header_done = True
-                else:
-                    continue
-
-            if header_done:
-                clean.append(line)
-
-        return "".join(clean).strip()
+                out_file = self.vba_dir / f"{comp.Name}{ext}"
+                comp.Export(str(out_file.absolute()))
+                print(f"    Exported: {comp.Name}")
+            except Exception as e:
+                print(f"    Failed {comp.Name}: {e}")
 
     def sync_file(self, path):
         name = path.stem
-        ext = path.suffix.lower()
-        print(f"Syncing: {path.name} -> {self.wb.name}...")
-
+        print(f"Syncing: {path.name} -> {self.app_type.capitalize()}...")
         try:
-            self.reset_vbe()
-            project = self.wb.api.VBProject
-
-            # 1. Identify Existing Component
             try:
-                comp = project.VBComponents(name)
-                comp_type = comp.Type
-            except:
-                comp = None
-                comp_type = None
-
-            # 2. Forms stick to .Import() as they have .frx binary dependencies
-            if ext == ".frm":
-                if comp:
-                    project.VBComponents.Remove(comp)
-                project.VBComponents.Import(str(path.absolute()))
-                print(f"    [SUCCESS] {name} imported (via Import).")
-                return
-
-            # 3. Code Modules (.bas, .cls, and Document modules)
-            # Read source
-            try:
-                with open(path, "r", encoding="utf-8-sig") as f:
-                    lines = f.readlines()
-            except UnicodeDecodeError:
-                with open(path, "r", encoding="windows-1252") as f:
-                    lines = f.readlines()
-
-            code = self.strip_metadata(lines)
-
-            if not comp or comp_type in [1, 2]:
-                # Non-document modules: Remove and Re-add fresh
-                if comp:
-                    project.VBComponents.Remove(comp)
-
-                vba_type = 1 if ext == ".bas" else 2
-                new_comp = project.VBComponents.Add(vba_type)
-                new_comp.Name = name
-                comp = new_comp
-
-            # Inject code
-            cm = comp.CodeModule
-            if cm.CountOfLines > 0:
-                cm.DeleteLines(1, cm.CountOfLines)
-            if code:
-                cm.AddFromString(code)
-
-            print(f"    [SUCCESS] {name} updated via AddFromString.")
-
+                comp = self.wb.api.VBProject.VBComponents(name)
+                if comp.Type in [1, 2, 3]:  # Std, Class, Form
+                    self.wb.api.VBProject.VBComponents.Remove(comp)
+                    self.wb.api.VBProject.VBComponents.Import(str(path.absolute()))
+                else:
+                    print(
+                        f"    [SKIP] {name} is a Document module (requires manual sync)."
+                    )
+            except Exception:
+                self.wb.api.VBProject.VBComponents.Import(str(path.absolute()))
+            print(f"    [SUCCESS] {name} updated.")
         except Exception as e:
             print(f"    [ERROR] {e}")
 
     def run(self, force_import=False):
         if not self.connect():
-            print(f"Could not connect to {self.target_name}")
+            print(
+                f"Error: Could not find {self.target_name if self.target_name else 'any open book'}."
+            )
             return
-
-        if not self.vba_dir.exists():
-            print(f"Error: VBA directory not found at {self.vba_dir}")
-            return
-
-        files = list(self.vba_dir.glob("*.*"))
-        self.hashes = {f: f.stat().st_mtime for f in files}
 
         if force_import:
-            print(f"Force importing all files from {self.vba_dir}...")
-            for f in files:
-                if f.suffix.lower() in [".bas", ".cls", ".frm"]:
+            print(f"Force-importing all components from {self.vba_dir}...")
+            for f in self.vba_dir.glob("*.*"):
+                if f.suffix in [".bas", ".cls", ".frm"]:
                     self.sync_file(f)
+            print("Bulk import complete.")
+        else:
+            self.export_all()
 
-        print(f"\nWatching {self.vba_dir}...")
+        self.hashes = {f: f.stat().st_mtime for f in self.vba_dir.glob("*.*")}
+
+        print(f"\nWatching {self.vba_dir} (Heartbeat: {self.poll_interval}s)...")
         try:
             while True:
                 time.sleep(self.poll_interval)
+                # Heartbeat check
                 try:
                     _ = self.wb.api.Name
                 except:
+                    print("\nConnection lost (Document closed?). Stopping.")
                     break
+
                 for f in self.vba_dir.glob("*.*"):
-                    if f.suffix.lower() not in [".bas", ".cls", ".frm"]:
-                        continue
                     mtime = f.stat().st_mtime
                     if f not in self.hashes or mtime > self.hashes[f]:
                         self.sync_file(f)
@@ -197,11 +115,30 @@ class OfficeVBAWatcher:
 
 
 if __name__ == "__main__":
+    # 0. Load Configuration
+    try:
+        import project_config
+
+        config = project_config.load_config()
+    except ImportError:
+        config = {}
+
+    default_project = config.get("file") or None
+    if default_project and "\\" in default_project:
+        default_project = Path(default_project).name
+
     parser = argparse.ArgumentParser(description="Office VBA Sync Watcher")
     parser.add_argument(
-        "project", nargs="?", default="PMS 3.1", help="Project name (workbook name)"
+        "project",
+        nargs="?",
+        default=default_project,
+        help="Project name (workbook name)",
     )
-    parser.add_argument("--dir", default="vba-files", help="VBA source directory")
+    parser.add_argument(
+        "--dir",
+        default=config.get("vba_directory", "vba-files"),
+        help="VBA source directory",
+    )
     parser.add_argument(
         "--import-all", action="store_true", help="Import all files on startup"
     )

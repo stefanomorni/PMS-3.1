@@ -1,7 +1,7 @@
 // Query   : lukb_json_to_table
 // Category: functions
 // Source  : PMS 3.1.xlsm_PowerQuery.m
-// Split   : 2026-02-24T17:03:57+00:00
+// Split   : 2026-03-03T17:39:11+00:00
 
 (json_data as record, listing_ids as list, fields_codes as list) =>
     let

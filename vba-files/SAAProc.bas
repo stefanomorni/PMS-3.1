@@ -124,19 +124,15 @@ Application.Run ("'" & CurrentBook.Name & "'!" & Procedure)
 Filechiuso:
 End Sub
 Sub Nascondi_Mostra_Proposta()
-Attribute Nascondi_Mostra_Proposta.VB_ProcData.VB_Invoke_Func = "p\n14"
 Switch_Visibilita Selection, "P_"
 End Sub
 Sub Nascondi_Mostra_Ordine()
-Attribute Nascondi_Mostra_Ordine.VB_ProcData.VB_Invoke_Func = "o\n14"
 Switch_Visibilita Selection, "O_"
 End Sub
 Sub Nascondi_Mostra_Attuale()
-Attribute Nascondi_Mostra_Attuale.VB_ProcData.VB_Invoke_Func = "a\n14"
 Switch_Visibilita Selection, "I_"
 End Sub
 Sub Nascondi_Mostra_Nuovo()
-Attribute Nascondi_Mostra_Nuovo.VB_ProcData.VB_Invoke_Func = "n\n14"
 Switch_Visibilita Selection, "S_"
 End Sub
 
@@ -163,7 +159,6 @@ fine:
     Application.ScreenUpdating = prevScreenUpdating
 End Sub
 Sub Mostra_Tutto()
-    Attribute Mostra_Tutto.VB_ProcData.VB_Invoke_Func = "r\n14"
     Dim prevEvents As Boolean
     Dim prevScreenUpdating As Boolean
     Dim Cella As Range
@@ -343,20 +338,10 @@ Sub Esporta_Ordini(ByRef Target As Range)
     Dim wsName As String
     Dim Ordini As Collection
     Dim O As clsOrdine
-    Dim Calcolazione As XlCalculation
-    Dim wksName As String
-    Dim OrdersWs As Worksheet
-    Dim OrdersTbl As ListObject
-    Dim OrderRw As ListRow
-    Dim Security As String, ISIN As String, Crncy As String, Client As String, Portfolio As String
-    Dim Price As Double, I_Pos As Double, O_Pos As Double, Amnt As Double
-    Dim Valoren As String
-    Dim Ordine As clsOrdine
-    Dim Riga As Range
     Dim prevCalc As XlCalculation
     Dim Cella As Range
 
-    On Error GoTo fine
+    On Error GoTo Label_Fine
 
     prevCalc = Application.Calculation
     Application.Calculation = xlCalculationManual
@@ -515,10 +500,10 @@ Sub Esporta_Ordini(ByRef Target As Range)
         End With
     End With
 End If
-fine:
-Application.Calculation = Calcolazione
-Application.EnableEvents = True
-Application.ScreenUpdating = True
+Label_Fine:
+    Application.Calculation = prevCalc
+    Application.EnableEvents = True ' Standard practice is to enable if they weren't explicitly saved
+    Application.ScreenUpdating = True
 End Sub
 Sub TestAgentRun()
 Shell "C:\Program Files\Sequentum\Sequentum Enterprise\RunAgent.exe D:\Cloud\OneDrive\Agents\MS_Scrape_Lists\MS_Scrape_Lists.scg", vbMinimizedNoFocus
@@ -615,16 +600,29 @@ End Sub
 
 Private Sub AggiornaQuery(Oggetto As String, Syncronous As Boolean)
 ' Se syncronous ? vero la querai si aggiorna in Background e la macro non attende il suo completamento
+On Error GoTo MessaggioErrore
 With ThisWorkbook.Connections("Query - " & Oggetto)
-    On Error GoTo MessaggioErrore
     .OLEDBConnection.BackgroundQuery = Syncronous
+    
+    ' Suppress Excel modal popups during refresh
+    Application.DisplayAlerts = False
     .Refresh
-    On Error GoTo 0
+    Application.DisplayAlerts = True
 End With
-MessaggioInBarraDiStato "Ultimo aggiornamento query: " & VBA.Format(Now(), "dd.mm.yy hh:mm:ss"), 0
+
+MessaggioInBarraDiStato "Ultimo aggiornamento query (" & Oggetto & "): " & VBA.Format(Now(), "dd.mm.yy hh:mm:ss"), 0
 Exit Sub
+
 MessaggioErrore:
-MsgBox "Purtroppo non ? stato possibile aggiornare la query " & Oggetto & ". Verfica che i dati di origine siano disponibili.", vbCritical, "Errore aggiornamento query"
+Application.DisplayAlerts = True
+' Identify standard LUKB timeout error to avoid scary messages
+If InStr(1, Err.Description, "LUKB_TIMEOUT", vbTextCompare) > 0 Then
+    MessaggioInBarraDiStato "Aggiornamento " & Oggetto & " FALLITO (Timeout LUKB) - Mantenuti dati precedenti", 1
+Else
+    MessaggioInBarraDiStato "Errore aggiornamento " & Oggetto & ": " & Err.Description, 1
+    ' Only show MsgBox for non-timeout errors if you want, but for now let's keep it in the bar.
+    ' MsgBox "Purtroppo non ? stato possibile aggiornare la query " & Oggetto, vbExclamation
+End If
 End Sub
 
 Sub ResetLukbId(ByRef AreaSelezionata As Range)
@@ -780,7 +778,7 @@ For Each CellaOrdine In rgOrdini.Columns(1).Cells
         End If
 
         Set rng_ColonnaDescrizione = CellaOrdine.Parent.Cells.Find(What:="Descrizione", After:=Cells(1, 1), LookIn:=xlValues, LookAt:=xlWhole, SearchOrder:=xlByColumns, SearchDirection:=xlNext)
-        if Not rng_ColonnaDescrizione Is Nothing Then
+        If Not rng_ColonnaDescrizione Is Nothing Then
             Set ColonnaDescrizione = rng_ColonnaDescrizione.EntireColumn
         End If
 

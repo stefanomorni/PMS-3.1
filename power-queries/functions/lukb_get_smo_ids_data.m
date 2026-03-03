@@ -1,7 +1,7 @@
 // Query   : lukb_get_smo_ids_data
 // Category: functions
 // Source  : PMS 3.1.xlsm_PowerQuery.m
-// Split   : 2026-02-24T17:03:57+00:00
+// Split   : 2026-03-03T17:39:11+00:00
 
 (
     listing_ids_list as list,
@@ -29,6 +29,10 @@
             corrected_listing_ids, corrected_fields_types, max_retries, null, in_pull_id, customer_id,
             timeout_seconds, null
         ),
-        data_tbl = lukb_json_to_table(data, corrected_listing_ids, corrected_fields_types)
+        data_tbl =
+            if Value.Is(data, type record) and Record.HasFields(data, "Error") then
+                Table.FromRows({}, {"listing_id"} & corrected_fields_types)
+            else
+                lukb_json_to_table(data, corrected_listing_ids, corrected_fields_types)
     in
         data_tbl

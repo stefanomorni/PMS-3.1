@@ -1,7 +1,7 @@
 // Query   : fn_rename_columns_from_reftable
 // Category: functions
 // Source  : PMS 3.1.xlsm_PowerQuery.m
-// Split   : 2026-02-24T17:03:57+00:00
+// Split   : 2026-03-03T17:39:11+00:00
 
 let
         Renamed_Columns_Tbl = (InputTable as table, RefTable as table) as table =>

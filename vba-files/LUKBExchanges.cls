@@ -5,6 +5,6 @@ END
 Attribute VB_Name = "LUKBExchanges"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
-Attribute VB_PredeclaredId = True
-Attribute VB_Exposed = True
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
 '@Folder("PMS.Classes")

@@ -1,7 +1,7 @@
 // Query   : fn_expand_all_tables
 // Category: functions
 // Source  : PMS 3.1.xlsm_PowerQuery.m
-// Split   : 2026-02-24T17:03:57+00:00
+// Split   : 2026-03-03T17:39:11+00:00
 
 let
         Origine = (table as table, optional culture as nullable text) as table =>
